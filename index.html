@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>설날 운세 뽑기</title>
+
+<style>
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif;
+  background:#f6e7cc;
+}
+
+/* 위아래 이미지 */
+.top-bg,
+.bottom-bg{
+  width:100%;
+  display:block;
+}
+
+/* 둥둥 애니메이션 */
+.float{
+  animation:float 3s ease-in-out infinite;
+}
+
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-10px)}
+}
+
+/* 카드 영역 */
+.card-wrap{
+  display:flex;
+  justify-content:center;
+  padding:60px 20px;
+}
+
+/* 카드 */
+.card{
+  width:100%;
+  max-width:700px;
+  background:white;
+  padding:60px 40px;
+  border-radius:30px;
+  text-align:center;
+  box-shadow:0 20px 50px rgba(0,0,0,0.15);
+}
+
+/* 텍스트 */
+h1{
+  margin:0 0 15px;
+  font-size:38px;
+}
+
+.desc{
+  color:#777;
+  font-size:18px;
+}
+
+/* 버튼 */
+button{
+  margin-top:40px;
+  width:100%;
+  padding:24px;
+  border:none;
+  border-radius:20px;
+  background:linear-gradient(135deg,#ff4d4d,#ff9f1a);
+  color:white;
+  font-size:22px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.2s;
+}
+
+button:hover{
+  transform:scale(1.05);
+}
+
+.result{
+  margin-top:30px;
+  font-size:30px;
+  font-weight:900;
+}
+
+.sub{
+  margin-top:12px;
+  font-size:20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 위 캐릭터 -->
+<img src="top.png" class="top-bg float">
+
+<!-- 운세 카드 -->
+<div class="card-wrap">
+  <div class="card">
+    <h1>설날 운세 뽑기</h1>
+    <div class="desc">선착순 250명 중 당첨!</div>
+
+    <button id="drawBtn">운세 뽑기</button>
+
+    <div id="result" class="result"></div>
+    <div id="sub" class="sub"></div>
+  </div>
+</div>
+
+<!-- 아래 캐릭터 -->
+<img src="bottom.png" class="bottom-bg float">
+
+<script>
+const btn = document.getElementById("drawBtn");
+const result = document.getElementById("result");
+const sub = document.getElementById("sub");
+
+btn.onclick = async ()=>{
+  btn.disabled=true;
+  btn.innerText="뽑는 중...";
+
+  try{
+    const res = await fetch("/api/draw");
+    const data = await res.json();
+
+    result.innerText=data.title;
+    sub.innerText=data.desc;
+
+  }catch{
+    result.innerText="오류 발생";
+    sub.innerText="관리자에게 문의하세요";
+  }
+}
+</script>
+
+</body>
+</html>
