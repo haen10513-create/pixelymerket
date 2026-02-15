@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>설날 운세 뽑기</title>
+<title>뜰팁장터 운세 뽑기</title>
 
 <style>
 body{
@@ -77,6 +77,11 @@ button:hover{
   transform:scale(1.05);
 }
 
+button:disabled{
+  background:#ccc;
+  cursor:not-allowed;
+}
+
 .result{
   margin-top:30px;
   font-size:30px;
@@ -92,14 +97,14 @@ button:hover{
 
 <body>
 
-<!-- 위 캐릭터 -->
+<!-- 위 이미지 -->
 <img src="top.png" class="top-bg float">
 
 <!-- 운세 카드 -->
 <div class="card-wrap">
   <div class="card">
     <h1>설날 운세 뽑기</h1>
-    <div class="desc">선착순 250명 중 당첨!</div>
+    <div class="desc">선착순 250명 중 당첨! (기기당 1회)</div>
 
     <button id="drawBtn">운세 뽑기</button>
 
@@ -108,31 +113,42 @@ button:hover{
   </div>
 </div>
 
-<!-- 아래 캐릭터 -->
+<!-- 아래 이미지 -->
 <img src="bottom.png" class="bottom-bg float">
 
 <script>
+const STORAGE_KEY = "fortune_2026_once";
+
 const btn = document.getElementById("drawBtn");
 const result = document.getElementById("result");
 const sub = document.getElementById("sub");
 
+/* 페이지 들어오자마자 참여 여부 체크 */
+if(localStorage.getItem(STORAGE_KEY)){
+  btn.disabled = true;
+  btn.innerText = "이미 참여함";
+  result.innerText = "이미 참여했습니다!";
+  sub.innerText = "기기당 1회 이벤트입니다.";
+}
+
+/* 뽑기 */
 btn.onclick = async ()=>{
-  btn.disabled=true;
-  btn.innerText="뽑는 중...";
+
+  // 이미 참여했으면 막기
+  if(localStorage.getItem(STORAGE_KEY)){
+    alert("이미 참여했습니다!");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = "뽑는 중...";
 
   try{
     const res = await fetch("/api/draw");
     const data = await res.json();
 
-    result.innerText=data.title;
-    sub.innerText=data.desc;
+    result.innerText = data.title || "오류";
+    sub.innerText = data.desc || "";
 
-  }catch{
-    result.innerText="오류 발생";
-    sub.innerText="관리자에게 문의하세요";
-  }
-}
-</script>
-
-</body>
-</html>
+    // ⭐ 기기당 1회 제한 저장
+    localStorage.setItem(STORAGE_KEY, "true");_
