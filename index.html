@@ -42,10 +42,6 @@ body{
   box-shadow:0 20px 50px rgba(0,0,0,0.15);
 }
 
-h1{font-size:38px;margin:0 0 15px;}
-
-.desc{color:#777;font-size:18px;}
-
 button{
   margin-top:40px;
   width:100%;
@@ -82,28 +78,73 @@ button:disabled{
 <img src="top.png" class="top-bg float">
 
 <div class="card-wrap">
-  <div class="card">
-    <h1>설날 운세 뽑기</h1>
-    <div class="desc">선착순 250명 / 기기당 1회</div>
+<div class="card">
 
-    <button id="drawBtn">운세 뽑기</button>
+<h1>설날 운세 뽑기</h1>
+<p>선착순 이벤트 / 기기당 1회</p>
 
-    <div id="result" class="result"></div>
-    <div id="sub" class="sub"></div>
-  </div>
+<button id="drawBtn">운세 뽑기</button>
+
+<div id="result" class="result"></div>
+<div id="sub" class="sub"></div>
+
+</div>
 </div>
 
 <img src="bottom.png" class="bottom-bg float">
 
 <script>
-const STORAGE_KEY = "fortune2026_once";
+const STORAGE_KEY="fortune_event_once_2026";
 
-const btn = document.getElementById("drawBtn");
-const result = document.getElementById("result");
-const sub = document.getElementById("sub");
+const btn=document.getElementById("drawBtn");
+const result=document.getElementById("result");
+const sub=document.getElementById("sub");
 
 /* 페이지 들어오면 참여 여부 체크 */
-function checkPlayed(){
+if(localStorage.getItem(STORAGE_KEY)){
+  btn.disabled=true;
+  btn.textContent="이미 참여함";
+  result.textContent="이미 참여했습니다!";
+  sub.textContent="기기당 1회 이벤트입니다.";
+}
+
+/* 버튼 클릭 */
+btn.addEventListener("click",async()=>{
+
+  // 기기당 1회 체크
   if(localStorage.getItem(STORAGE_KEY)){
-    btn.disabled = true;
-    btn.textContent = "이미 참여함";
+    alert("이미 참여했습니다!");
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent="뽑는 중...";
+
+  try{
+    // ⭐ 서버 호출 (네 draw.js)
+    const res=await fetch("/api/draw",{method:"GET"});
+
+    if(!res.ok) throw new Error("server error");
+
+    const data=await res.json();
+
+    result.textContent=data.title || "결과 없음";
+    sub.textContent=data.desc || "";
+
+    // 성공했을 때만 1회 제한 저장
+    localStorage.setItem(STORAGE_KEY,"true");
+
+  }catch(err){
+    // 서버 문제면 다시 누를 수 있게
+    result.textContent="서버 오류";
+    sub.textContent="잠시 후 다시 시도하세요";
+
+    btn.disabled=false;
+    btn.textContent="운세 뽑기";
+  }
+
+});
+</script>
+
+</body>
+</html>
