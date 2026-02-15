@@ -1,10 +1,12 @@
+// 총 참여자 수
 let total = 0;
 
-let winners = {
-  first: 0,
-  second: 0,
-  third: 0,
-  fourth: 0
+// 남은 당첨 수
+let remain = {
+  first: 1,
+  second: 2,
+  third: 3,
+  fourth: 4
 };
 
 export default function handler(req, res) {
@@ -19,51 +21,51 @@ export default function handler(req, res) {
 
   total++;
 
-  let result;
+  // 남은 전체 당첨 자리 계산
+  const totalWinners =
+    remain.first +
+    remain.second +
+    remain.third +
+    remain.fourth;
 
-  // 1등 1명
-  if (winners.first < 1) {
-    winners.first++;
-    result = {
-      title: "🥇 1등 당첨!",
-      desc: "싸이버거 세트"
-    };
+  // 아직 당첨 자리 있으면
+  if (totalWinners > 0) {
+
+    // 남은 인원 중 당첨 확률 계산
+    const chance = totalWinners / (250 - total + 1);
+
+    // 당첨 여부 결정
+    if (Math.random() < chance) {
+
+      // 남은 등수 목록 만들기
+      let pool = [];
+      if (remain.first > 0) pool.push("first");
+      if (remain.second > 0) pool.push("second");
+      if (remain.third > 0) pool.push("third");
+      if (remain.fourth > 0) pool.push("fourth");
+
+      // 랜덤 등수 선택
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      remain[pick]--;
+
+      if (pick === "first")
+        return res.json({ title: "🥇 1등 당첨!", desc: "싸이버거 세트" });
+
+      if (pick === "second")
+        return res.json({ title: "🥈 2등 당첨!", desc: "메가커피 음료" });
+
+      if (pick === "third")
+        return res.json({ title: "🥉 3등 당첨!", desc: "편의점 간식" });
+
+      if (pick === "fourth")
+        return res.json({ title: "🎁 4등 당첨!", desc: "마이쮸·새콤달콤" });
+    }
   }
 
-  // 2등 2명
-  else if (winners.second < 2) {
-    winners.second++;
-    result = {
-      title: "🥈 2등 당첨!",
-      desc: "메가커피 음료"
-    };
-  }
-
-  // 3등 3명
-  else if (winners.third < 3) {
-    winners.third++;
-    result = {
-      title: "🥉 3등 당첨!",
-      desc: "편의점 간식"
-    };
-  }
-
-  // 4등 4명
-  else if (winners.fourth < 4) {
-    winners.fourth++;
-    result = {
-      title: "🎁 4등 당첨!",
-      desc: "마이쮸·새콤달콤"
-    };
-  }
-
-  // 나머지 = 5등
-  else {
-    result = {
-      title: "🥺 5등",
-      desc: "새해복 많이 받으세요(*^▽^)/★*☆♪"
-    };
-  }
-
-  res.json(result);
+  // 꽝 (5등)
+  res.json({
+    title: "🥺 5등",
+    desc: "새해복 많이 받으세요(*^▽^)/★*☆♪"
+  });
 }
+
